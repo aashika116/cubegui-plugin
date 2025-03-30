@@ -5,20 +5,28 @@
 #include <QtPlugin>
 #include <QWidget>
 #include <QTreeWidget>
-#include <CubePlugin.h>
-#include <PluginInterface.h>
 
-class SystemTreePlugin : public QObject, public cubepluginapi::CubePlugin, public cubegui::TabInterface
+#include "PluginServices.h"
+#include "CubePlugin.h"
+#include "TabInterface.h"
+
+class SystemTreePlugin : public QObject, public cubepluginapi::CubePlugin, public cubepluginapi::TabInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "SystemTreePlugin")
-    Q_INTERFACES(CubePlugin)
+    Q_INTERFACES( cubepluginapi::CubePlugin )
 
 public:
     explicit SystemTreePlugin();
     ~SystemTreePlugin();
     bool cubeOpened( cubepluginapi::PluginServices* service ) override;
     void cubeClosed() override;
+    void version(int& major, int& minor, int& bugfix) const override;
+    QString name() const override;
+    QString getHelpText() const override;
+
+    QWidget* widget() override { return treeWidget; }
+    QString label() const override { return "System Tree"; }
 
 private:
     QTreeWidget* treeWidget;
