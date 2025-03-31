@@ -28,8 +28,12 @@ public:
     QWidget* widget() override { return treeWidget; }
     QString label() const override { return "System Tree"; }
 
+    void loadJson(const QString& jsonStr);
+
 private:
     QTreeWidget* treeWidget;
+
+    void parseJson(const QJsonObject& jsonObject, QTreeWidgetItem* parentItem);
 };
 
 #endif
