@@ -1,0 +1,15 @@
+{
+    "Root": {
+        "Node1": {
+            "Child1": {},
+            "Child2": {}
+        },
+        "Node2": {
+            "Child3": {},
+            "Child4": {
+                "Grandchild1": {},
+                "Grandchild2": {}
+            }
+        }
+    }
+}

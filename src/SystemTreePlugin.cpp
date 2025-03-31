@@ -1,5 +1,6 @@
 #include "SystemTreePlugin.h"
 #include "PluginServices.h"
+#include <QMessageBox>
 
 // Sets the version of the plugin
 void SystemTreePlugin::version(int& major, int& minor, int& bugfix) const
@@ -26,6 +27,10 @@ SystemTreePlugin::SystemTreePlugin()
 {
     treeWidget = new QTreeWidget();
     treeWidget->setHeaderLabel("System Tree");
+
+    // Set json file path
+    QString rootDir = QDir(QCoreApplication::applicationDirPath()).filePath("..");
+    jsonFilePath = rootDir + "data/dummy_test.json";
 }
 
 // Destructor: Cleans up allocated resources
@@ -40,8 +45,10 @@ bool SystemTreePlugin::cubeOpened(cubepluginapi::PluginServices* service)
     // Add the plugin's tab to the system view
     service->addTab(cubepluginapi::SYSTEM, this);
 
-    QString exampleJson = R"({"A": {"B1": {"C1": {}, "C2": {}}, "B2": {"C3": {}, "C4": {}}}})";
-    loadJson(exampleJson);
+    QString jsonContent = readCustomJson();
+    if (!jsonContent.isEmpty()) {
+        loadJson(jsonContent);
+    }
 
     return true;
 }
@@ -52,12 +59,39 @@ void SystemTreePlugin::cubeClosed()
     treeWidget->clear();
 }
 
+// Reads JSON content from the file
+QString SystemTreePlugin::readCustomJson()
+{
+    QFile file(jsonFilePath);
+    if (!file.exists()) {
+        QMessageBox::warning(nullptr, "Error", "The JSON file does not exist: " + jsonFilePath);
+        return QString();
+    }
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(nullptr, "Error", "Failed to open the JSON file: " + jsonFilePath);
+        return QString();
+    }
+
+    QString jsonStr = file.readAll();
+    file.close();
+    return jsonStr;
+}
+
 // Parses and loads JSON data into the tree widget
 void SystemTreePlugin::loadJson(const QString& jsonStr)
 {
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
+    QJsonParseError parseError;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8(), &parseError);
+
+    if (parseError.error != QJsonParseError::NoError) {
+        QMessageBox::warning(nullptr, "Error", "Failed to parse JSON: " + parseError.errorString());
+        return;
+    }
+
     if (!jsonDoc.isObject()) {
-        return; // Exit if the JSON is not an object
+        QMessageBox::warning(nullptr, "Error", "The JSON root is not an object.");
+        return;
     }
 
     treeWidget->clear();
@@ -78,9 +112,30 @@ void SystemTreePlugin::parseJson(const QJsonObject& jsonObject, QTreeWidgetItem*
             treeWidget->addTopLevelItem(item);
         }
 
-        // If the value is a nested object, recursively parse it
+        // Nested Object handling
         if (jsonObject[key].isObject()) {
             parseJson(jsonObject[key].toObject(), item);
+        }
+
+        // Array handling
+        else if (jsonObject[key].isArray()) {
+            QJsonArray array = jsonObject[key].toArray();
+            for (int i = 0; i < array.size(); ++i) {
+                QTreeWidgetItem* arrayItem = new QTreeWidgetItem();
+                arrayItem->setText(0, QString("[%1]").arg(i));
+                item->addChild(arrayItem);
+
+                if (array[i].isObject()) {
+                    parseJson(array[i].toObject(), arrayItem);
+                } else {
+                    arrayItem->setText(1, array[i].toVariant().toString());
+                }
+            }
+        }
+
+        // Primitive value handling
+        else {
+            item->setText(1, jsonObject[key].toVariant().toString());
         }
     }
 }
