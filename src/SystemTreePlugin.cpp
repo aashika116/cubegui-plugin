@@ -1,5 +1,6 @@
 #include "SystemTreePlugin.h"
 #include "PluginServices.h"
+#include <QMessageBox>
 
 // Sets the version of the plugin
 void SystemTreePlugin::version(int& major, int& minor, int& bugfix) const
@@ -26,6 +27,10 @@ SystemTreePlugin::SystemTreePlugin()
 {
     treeWidget = new QTreeWidget();
     treeWidget->setHeaderLabel("System Tree");
+
+    // Set json file path
+    QString rootDir = QDir(QCoreApplication::applicationDirPath()).filePath("..");
+    jsonFilePath = rootDir + "data/dummy_test.json";
 }
 
 // Destructor: Cleans up allocated resources
@@ -40,8 +45,10 @@ bool SystemTreePlugin::cubeOpened(cubepluginapi::PluginServices* service)
     // Add the plugin's tab to the system view
     service->addTab(cubepluginapi::SYSTEM, this);
 
-    QString exampleJson = R"({"A": {"B1": {"C1": {}, "C2": {}}, "B2": {"C3": {}, "C4": {}}}})";
-    loadJson(exampleJson);
+    QString jsonContent = readCustomJson();
+    if (!jsonContent.isEmpty()) {
+        loadJson(jsonContent);
+    }
 
     return true;
 }
@@ -50,6 +57,25 @@ bool SystemTreePlugin::cubeOpened(cubepluginapi::PluginServices* service)
 void SystemTreePlugin::cubeClosed()
 {
     treeWidget->clear();
+}
+
+// Reads JSON content from the file
+QString SystemTreePlugin::readCustomJson()
+{
+    QFile file(jsonFilePath);
+    if (!file.exists()) {
+        QMessageBox::warning(nullptr, "Error", "The JSON file does not exist: " + jsonFilePath);
+        return QString();
+    }
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(nullptr, "Error", "Failed to open the JSON file: " + jsonFilePath);
+        return QString();
+    }
+
+    QString jsonStr = file.readAll();
+    file.close();
+    return jsonStr;
 }
 
 // Parses and loads JSON data into the tree widget

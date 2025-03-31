@@ -32,7 +32,9 @@ public:
 
 private:
     QTreeWidget* treeWidget;
+    QString jsonFilePath;
 
+    QString readCustomJson();
     void parseJson(const QJsonObject& jsonObject, QTreeWidgetItem* parentItem);
 };
 
