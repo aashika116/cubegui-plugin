@@ -81,9 +81,17 @@ QString SystemTreePlugin::readCustomJson()
 // Parses and loads JSON data into the tree widget
 void SystemTreePlugin::loadJson(const QString& jsonStr)
 {
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
+    QJsonParseError parseError;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8(), &parseError);
+
+    if (parseError.error != QJsonParseError::NoError) {
+        QMessageBox::warning(nullptr, "Error", "Failed to parse JSON: " + parseError.errorString());
+        return;
+    }
+
     if (!jsonDoc.isObject()) {
-        return; // Exit if the JSON is not an object
+        QMessageBox::warning(nullptr, "Error", "The JSON root is not an object.");
+        return;
     }
 
     treeWidget->clear();
@@ -104,9 +112,30 @@ void SystemTreePlugin::parseJson(const QJsonObject& jsonObject, QTreeWidgetItem*
             treeWidget->addTopLevelItem(item);
         }
 
-        // If the value is a nested object, recursively parse it
+        // Nested Object handling
         if (jsonObject[key].isObject()) {
             parseJson(jsonObject[key].toObject(), item);
+        }
+
+        // Array handling
+        else if (jsonObject[key].isArray()) {
+            QJsonArray array = jsonObject[key].toArray();
+            for (int i = 0; i < array.size(); ++i) {
+                QTreeWidgetItem* arrayItem = new QTreeWidgetItem();
+                arrayItem->setText(0, QString("[%1]").arg(i));
+                item->addChild(arrayItem);
+
+                if (array[i].isObject()) {
+                    parseJson(array[i].toObject(), arrayItem);
+                } else {
+                    arrayItem->setText(1, array[i].toVariant().toString());
+                }
+            }
+        }
+
+        // Primitive value handling
+        else {
+            item->setText(1, jsonObject[key].toVariant().toString());
         }
     }
 }
