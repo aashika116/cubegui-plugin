@@ -3,39 +3,41 @@
 
 #include <QObject>
 #include <QtPlugin>
-#include <QWidget>
-#include <QTreeWidget>
+#include <QPlainTextEdit>
 
 #include "PluginServices.h"
 #include "CubePlugin.h"
 #include "TabInterface.h"
 
+namespace cube {
+    class SystemTreeNode;
+}
+
 class SystemTreePlugin : public QObject, public cubepluginapi::CubePlugin, public cubepluginapi::TabInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "SystemTreePlugin")
-    Q_INTERFACES( cubepluginapi::CubePlugin )
+    Q_INTERFACES(cubepluginapi::CubePlugin)
 
 public:
-    explicit SystemTreePlugin();
+    SystemTreePlugin();
     ~SystemTreePlugin();
-    bool cubeOpened( cubepluginapi::PluginServices* service ) override;
+
+    bool cubeOpened(cubepluginapi::PluginServices* service) override;
     void cubeClosed() override;
+
     void version(int& major, int& minor, int& bugfix) const override;
     QString name() const override;
     QString getHelpText() const override;
 
-    QWidget* widget() override { return treeWidget; }
-    QString label() const override { return "System Tree"; }
-
-    void loadJson(const QString& jsonStr);
+    QWidget* widget() override;
+    QString label() const override;
 
 private:
-    QTreeWidget* treeWidget;
-    QString jsonFilePath;
+    QPlainTextEdit* jsonViewer;
 
-    QString readCustomJson();
-    void parseJson(const QJsonObject& jsonObject, QTreeWidgetItem* parentItem);
+    QString readSystemTreeJson(const QString& cubexFilePath);
+    void traverseSystemTree(const cube::SystemTreeNode* node, QJsonObject& jsonObject);
 };
 
 #endif
