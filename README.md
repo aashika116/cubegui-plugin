@@ -2,6 +2,8 @@
 A plugin for CubeGUI that visualizes system tree data in JSON format.
 
 ## Build Instructions
+To build the plugin, make sure you have **Qt 5.15.18** installed, as cubegui-4.8.2 is not compatible with Qt 6.
+
 To build the plugin, simply run the `build.sh` script located in the project directory:
 ```bash
 bash ./build.sh
