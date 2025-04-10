@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Project name
-project(SystemTreePlugin)
+project(ParseToJSONPlugin)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)
@@ -29,11 +29,11 @@ set(CMAKE_PREFIX_PATH "/home/aashika/Qt/5.15.18/gcc_64/lib/cmake/Qt5")
 
 find_package(Qt5 5.15.18 REQUIRED COMPONENTS Core Widgets)
 
-add_library(SystemTreePlugin SHARED
-    src/SystemTreePlugin.cpp
-    src/SystemTreePlugin.h
+add_library(ParseToJSONPlugin SHARED
+    src/ParseToJSONPlugin.cpp
+    src/ParseToJSONPlugin.h
 )
-target_link_libraries(SystemTreePlugin PRIVATE
+target_link_libraries(ParseToJSONPlugin PRIVATE
     Qt5::Core
     Qt5::Widgets
 )

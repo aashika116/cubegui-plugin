@@ -1,5 +1,5 @@
-#ifndef SYSTEMTREEPLUGIN_H
-#define SYSTEMTREEPLUGIN_H
+#ifndef PARSETOJSONPLUGIN_H
+#define PARSETOJSONPLUGIN_H
 
 #include <QObject>
 #include <QtPlugin>
@@ -13,15 +13,15 @@ namespace cube {
     class SystemTreeNode;
 }
 
-class SystemTreePlugin : public QObject, public cubepluginapi::CubePlugin, public cubepluginapi::TabInterface
+class ParseToJSONPlugin : public QObject, public cubepluginapi::CubePlugin, public cubepluginapi::TabInterface
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "SystemTreePlugin")
+    Q_PLUGIN_METADATA(IID "ParseToJSONPlugin")
     Q_INTERFACES(cubepluginapi::CubePlugin)
 
 public:
-    SystemTreePlugin();
-    ~SystemTreePlugin();
+    ParseToJSONPlugin();
+    ~ParseToJSONPlugin();
 
     bool cubeOpened(cubepluginapi::PluginServices* service) override;
     void cubeClosed() override;
@@ -38,6 +38,10 @@ private:
 
     QString readSystemTreeJson(const QString& cubexFilePath);
     void traverseSystemTree(const cube::SystemTreeNode* node, QJsonObject& jsonObject);
+
+    void addBasicProperties(const cube::SystemTreeNode* node, QJsonObject& jsonObject);
+    void addChildNodes(const cube::SystemTreeNode* node, QJsonObject& jsonObject);
+    void addLocationGroups(const cube::SystemTreeNode* node, QJsonObject& jsonObject);
 };
 
 #endif
