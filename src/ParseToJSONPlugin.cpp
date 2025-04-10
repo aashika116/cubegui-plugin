@@ -122,6 +122,8 @@ void ParseToJSONPlugin::addBasicProperties(const cube::SystemTreeNode* node, QJs
 void ParseToJSONPlugin::addChildNodes(const cube::SystemTreeNode* node, QJsonObject& jsonObject)
 {
     QJsonArray childrenArray;
+
+    // Iterate through all child nodes and traverse them recursively
     for (unsigned int i = 0; i < node->num_children(); ++i) {
         QJsonObject childJson;
         traverseSystemTree(node->get_child(i), childJson);
@@ -133,12 +135,16 @@ void ParseToJSONPlugin::addChildNodes(const cube::SystemTreeNode* node, QJsonObj
 void ParseToJSONPlugin::addLocationGroups(const cube::SystemTreeNode* node, QJsonObject& jsonObject)
 {
     QJsonArray groupsArray;
+
+    // Iterate through all location groups associated with the node
     for (const auto& group : const_cast<cube::SystemTreeNode*>(node)->get_groups()) {
         QJsonObject groupJson;
+        QJsonArray locationsArray;
+        
         groupJson["name"] = QString::fromStdString(group->get_name());
         groupJson["id"] = static_cast<int>(group->get_id());
 
-        QJsonArray locationsArray;
+        // Iterate through all locations in the group
         for (const auto& location : group->get_children()) {
             QJsonObject locationJson;
             locationJson["name"] = QString("Location %1").arg(location->get_id());
