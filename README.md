@@ -1,4 +1,4 @@
-# JSON Tree CubeGUI Plugin
+# ParseToJSON CubeGUI Plugin
 A plugin for CubeGUI that visualizes system tree data in JSON format.
 
 ## Build Instructions
@@ -10,28 +10,23 @@ bash ./build.sh
 ```
 
 ## How it works
-The SystemTreePlugin provides functionality to load and display JSON data in a tree structure within the CubeGUI application. Key features:
+The `ParseToJSONPlugin` provides functionality to parse and display system tree data from `.cubex` files in JSON format within the CubeGUI application. Key features:
 
 1. **Plugin Initialization**:
-    - The plugin sets up a QTreeWidget to display the system tree.
-    - It reads a JSON file (dummy_test.json) located in the data directory.
+    - The plugin sets up a `QPlainTextEdit` widget to display the indented JSON data.
+    - It initializes the widget with a fixed-width font and disables word wrapping for better readability.
 
-2. **JSON Parsing**:
-    - The plugin reads the JSON file and parses its content using QJsonDocument.
-    - It recursively processes JSON objects and arrays to populate the tree widget.
+2. **System Tree Parsing**:
+    - When a `.cubex` file is opened, the plugin reads the file and parses the system tree using the Cube library.
+    - It recursively traverses the `SystemTreeNode` structure, extracting properties (e.g., name, ID, description, class), child nodes, and location groups.
+    - The parsed data is converted into a structured JSON format using `QJsonObject` and `QJsonArray`.
 
 3. **Integration with CubeGUI**:
-    - The plugin adds a tab to the CubeGUI interface when a cube file is opened.
-    - It clears the tree widget when a cube file is closed.
-
-## Caveats
-- The code has not been thoroughly tested, so the plugin may contain bugs.
-- The custom plugin feature in CubeGUI was not fully understood, which prevented proper testing of the plugin's functionality within the application.
-
-*Note: The plugin is compilable, but may not be fully functional.* 
+    - The plugin adds a tab to the CubeGUI interface when a `.cubex` file is opened.
+    - It displays the JSON representation of the system tree in the `QPlainTextEdit` widget.
+    - When the file is closed, the displayed JSON is cleared.
 
 ## Future Enhancements
-- Better testing to identify and fix existing bugs.
-- Improve integration with CubeGUI's custom plugin feature.
+- Better testing to identify and fix existing bugs. Plugin works with all the tested `.cubex` files, however this testing was not comprehensive.
 - Add more visualization options to enhance user experience.
-- Add feature to load json with a file rather than pasting a json at build time.
+- Add features to download, collapse, expand and sort the json.
