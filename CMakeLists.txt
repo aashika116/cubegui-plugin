@@ -3,37 +3,40 @@ cmake_minimum_required(VERSION 3.10)
 # Project name
 project(ParseToJSONPlugin)
 
+# Use C++17
 set(CMAKE_CXX_STANDARD 17)
+
+# Enable Qt MOC and UIC
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 #TODO: Not sure if this is the best way to do this
 #Define variables for include and library paths
-set(CUBEGUI_INCLUDE_DIR /opt/cubegui/include/cubegui)
+set(CUBEGUI_BASE "/wsgjsc/home/suresh3/Documents/work/cubegui-install")
 
-include_directories("/home/aashika/Qt/5.15.18/gcc_64/include"
-"/usr/local/include/cubelib"
-"/home/aashika/Downloads/Softwares/cubelib-4.8.2/src/cube/include" 
-"/opt/cube/include/cubelib"
-"/home/aashika/Downloads/Softwares/cubegui-4.8.2/src/GUI-qt/display"
-"/home/aashika/Qt/5.15.18/Src/qt3d/src/3rdparty/assimp/src/include/assimp"
+# CubeLib install path
+set(CUBELIB_BASE "/wsgjsc/home/suresh3/Documents/work/cubelib-install")
+
+# ================= INCLUDE DIRECTORIES =================
+include_directories(
+    ${CUBEGUI_BASE}/include/cubegui
+    ${CUBELIB_BASE}/include/cubelib
 )
 
-set(CUBEGUI_LIB_DIR /opt/cubegui/lib)
-set(CUBELIB_LIB_DIR /usr/local/include/cubelib)
-set(QT_LIB_DIR /home/aashika/Qt/5.15.18/gcc_64/lib)
+# Find Qt6 (Core, Widgets, Gui)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui)
 
-include_directories(${CUBEGUI_INCLUDE_DIR} ${CUBELIB_INCLUDE_DIR})
-
-set(CMAKE_PREFIX_PATH "/home/aashika/Qt/5.15.18/gcc_64/lib/cmake/Qt5")
-
-find_package(Qt5 5.15.18 REQUIRED COMPONENTS Core Widgets)
-
+# ================= PLUGIN SOURCE =================
 add_library(ParseToJSONPlugin SHARED
     src/ParseToJSONPlugin.cpp
     src/ParseToJSONPlugin.h
 )
+
+# Qt6 libraries
 target_link_libraries(ParseToJSONPlugin PRIVATE
-    Qt5::Core
-    Qt5::Widgets
+    Qt6::Core
+    Qt6::Widgets
+    Qt6::Gui
+    ${CUBEGUI_BASE}/lib/libcube4gui.so
+    ${CUBELIB_BASE}/lib/libcube4.so
 )
